@@ -71,9 +71,9 @@ V& omit(V& v)
   return v;
 }
 
-V operator + (const V& v, const V& v1)
+V& add (V& v, const V& v1)
 {
-  V ret = v;
+  V& ret = v;
   for(V::const_iterator iter = v1.begin();
       iter != v1.end(); ++iter) {
     V::iterator it = ret.find(iter -> first);
@@ -108,19 +108,11 @@ int max(const V& v)
   return ret;
 }
 
-monomial append(const s& x, const monomial& m)
+list<s> append(const s& x, list<s> l)
 {
-  monomial ret = m;
-  ret.first.push_front(x);
-  ret.first.sort();
-  return ret;
-}
-
-pair<monomial, QQ> append(const s& x, const pair<monomial, QQ> v)
-{
-  pair<monomial, QQ> ret = v;
-  ret.first = append(x, ret.first);
-  return ret;
+  l.push_front(x);
+  l.sort();
+  return l;
 }
 
 V append(const s& x, const V& v)
@@ -128,7 +120,12 @@ V append(const s& x, const V& v)
   V ret;
   for(V::const_iterator iter = v.begin();
       iter != v.end(); ++iter) {
-    ret.insert(append(x, (*iter)));
+    const monomial& m = iter -> first;
+    ret.insert(
+      make_pair(
+        make_pair(append(x, m.first), m.second),
+        iter -> second)
+      );
   }
   return ret;
 }
@@ -176,8 +173,7 @@ V d(const s& x, const pair<monomial, QQ> v)
   pair<monomial, QQ> n_v = v;
   n_v.first.first.pop_front();
 
-  ret = ret + append(head, d(x, n_v));
-  return ret;
+  return add(ret, append(head, d(x, n_v)));
 }
 
 V d(const s& x, const V& v)
@@ -185,7 +181,7 @@ V d(const s& x, const V& v)
   V ret;
   for(V::const_iterator iter = v.begin();
       iter != v.end(); ++iter) {
-    ret = ret + d(x, *iter);
+    ret = add(ret, d(x, *iter));
   }
   return omit(ret);
 }
@@ -255,10 +251,11 @@ V exp_plus(int k, Q gamma, const pair<monomial, QQ>& v)
   generate(-k, pars);
   for(vector<Par>::const_iterator it = pars.begin();
       it != pars.end(); ++it) {
-    ret = ret + 
-            QQ(l(*it) % 2 == 0 ? 1 : -1) *
-            (QQ(1) / QQ(z(*it))) *
-            (d(*it, gamma, v));
+    ret = add(ret,
+              QQ(l(*it) % 2 == 0 ? 1 : -1) *
+              (QQ(1) / QQ(z(*it))) *
+              (d(*it, gamma, v))
+             );
   }
   return omit(ret);
 }
@@ -269,7 +266,7 @@ V exp_plus(int k, Q gamma, const V& v)
   V ret;
   for(V::const_iterator iter = v.begin();
       iter != v.end(); ++iter)
-    ret = ret + exp_plus(k, gamma, *iter);
+    ret = add(ret, exp_plus(k, gamma, *iter));
   return omit(ret);
 }
 
@@ -281,9 +278,10 @@ V exp_minus(int k, Q gamma, const pair<monomial, QQ>& v)
   generate(k, pars);
   for(vector<Par>::const_iterator it = pars.begin();
       it != pars.end(); ++it) {
-    ret = ret + 
-            (QQ(1) / QQ(z(*it))) *
-            (append(*it, gamma, v));
+    ret = add(ret,
+              (QQ(1) / QQ(z(*it))) *
+              (append(*it, gamma, v))
+             );
   }
   return omit(ret);
 }
@@ -294,7 +292,7 @@ V exp_minus(int k, Q gamma, const V& v)
   V ret;
   for(V::const_iterator iter = v.begin();
       iter != v.end(); ++iter)
-    ret = ret + exp_minus(k, gamma, *iter);
+    ret = add(ret, exp_minus(k, gamma, *iter));
   return omit(ret);
 }
 
@@ -309,7 +307,7 @@ V X(int k, Q gamma, const V& v)
     int ev = k - inner(gamma, gamma) / 2 - inner(gamma, m.second);
     tmp = e(gamma, tmp);
     for(int i = 0; i <= max(v); i++) { 
-      ret = ret + exp_minus(ev + i, gamma, exp_plus(-i, gamma, tmp));
+      ret = add(ret, exp_minus(ev + i, gamma, exp_plus(-i, gamma, tmp)));
     }
   }
   return ret;
@@ -356,19 +354,16 @@ int main()
   V v;
   v[V::key_type(list<s>(), 0)] = 1;
   cout << "v = " <<  v << endl;
-  string str;
+/*  string str;
   while(getline(cin, str)) {
     vector<string> strs = split(str);
     vector<int> in = stoi(strs);
     V result = Es(in, v);
     cout << Es_str(in, "v") << "=" << endl
          << result << endl;
-  }
-  /*cout << "E(-5, 1,  v) = "
-       << E(-5, 1, v) << endl;
-  cout << "E(-4, 1, E(-1, 1,  v)) = "
-       << E(-4, 1, E(-1, 1, v)) << endl;
-  cout << "E(-3, 1, E(-2, 1,  v)) = "
-       << E(-3, 1, E(-2, 1, v)) << endl;*/
+  }*/
+  // now 1.36 sec
+  cout << "E(-10, 1, E(-9, 1,  v)) = "
+       << E(-10, 1, E(-9, 1, v)) << endl;
   return 0;
 }
