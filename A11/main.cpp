@@ -17,6 +17,7 @@ using std::vector;    using std::max;
 using std::string;    using std::cin;
 using std::stoi;      using std::to_string;
 using std::transform;
+using partition::Par; using partition::generate;
 
 using QQ = mpq_class;
 using Q = int;
@@ -252,7 +253,7 @@ V exp_plus(int k, Q gamma, const pair<monomial, QQ>& v)
   for(vector<Par>::const_iterator it = pars.begin();
       it != pars.end(); ++it) {
     ret = add(ret,
-              QQ(l(*it) % 2 == 0 ? 1 : -1) *
+              QQ(partition::l(*it) % 2 == 0 ? 1 : -1) *
               (QQ(1) / QQ(z(*it))) *
               (d(*it, gamma, v))
              );

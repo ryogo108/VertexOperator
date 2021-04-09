@@ -1,6 +1,8 @@
 #include <gmpxx.h>
 #include "partition.h"
 
+using namespace partition;
+
 using ZZ = mpz_class;
 using QQ = mpq_class;
 
