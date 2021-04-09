@@ -146,13 +146,13 @@ int inner(Q x, Q y)
   return 2 * x * y;
 }
 
-V dh(const V& v)
+V dh(Q gamma, const V& v)
 {
   V ret;
   for(V::const_iterator iter = v.begin();
       iter != v.end(); ++iter) {
-    Q gamma = (iter -> first).second;
-    ret[iter -> first] = iter -> second * inner(Q(1), gamma);
+    Q beta = (iter -> first).second;
+    ret[iter -> first] = iter -> second * inner(gamma, beta);
   }
   return omit(ret);
 }
@@ -202,7 +202,7 @@ V operator * (const s& x, const V& v)
   if (x.first < 0)
     return append(x, v);
   if (x.first == 0)
-    return dh(v);
+    return dh(x.second, v);
   return d(x, v);
 }
 
