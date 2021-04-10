@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <iterator>
+#include <stdexcept>
 #include "partition.h"
 #include "calc_z.h"
 #include "split.h"
@@ -16,7 +17,7 @@ using std::map;       using std::ostream;
 using std::vector;    using std::max;
 using std::string;    using std::cin;
 using std::stoi;      using std::to_string;
-using std::transform;
+using std::transform; using std::domain_error;
 using partition::Par; using partition::generate;
 
 using QQ = mpq_class;
@@ -158,23 +159,36 @@ V dh(Q gamma, const V& v)
   return omit(ret);
 }
 
+// l の要素 s(i, g) の整数部分 i が k の ルート g ごとの重複度
+map<Q, int> mult(int k, const list<s>& l)
+{
+  map<Q, int> ret;
+  for(list<s>::const_iterator iter = l.begin();
+      iter != l.end(); ++iter) {
+    if(iter -> first == k)
+      ret[iter -> second]++;
+  }
+  return ret;
+}
+
 V d(const s& x, const pair<monomial, QQ> v)
 {
-  if(v.first.first.empty())
-    return V();
   V ret;
   const monomial& m = v.first;
-  list<s> l = m.first;
-  const s head = l.front();
-  if(head.first == -x.first) {
-    l.pop_front();
-    ret[monomial(l, m.second)] = v.second * x.first * inner(x.second, head.second);
+  const map<Q, int>& mul = mult(-x.first, m.first);
+  for(map<Q, int>::const_iterator iter = mul.begin();
+      iter != mul.end(); ++iter) {
+    list<s> l = m.first;
+    list<s>::iterator it = find(l.begin(), l.end(), s(-x.first, iter -> first));
+    if(it == l.end())
+      throw domain_error("微分する対象が見つかりません");
+    l.erase(it);
+    ret[monomial(l, m.second)] = v.second *
+                                 (iter -> second) *
+                                 x.first *
+                                 inner(x.second, iter -> first);
   }
-
-  pair<monomial, QQ> n_v = v;
-  n_v.first.first.pop_front();
-
-  return add(ret, append(head, d(x, n_v)));
+  return ret;
 }
 
 V d(const s& x, const V& v)
