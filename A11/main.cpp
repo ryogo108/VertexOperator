@@ -171,7 +171,7 @@ map<Q, int> mult(int k, const list<s>& l)
   return ret;
 }
 
-V d(const s& x, const pair<monomial, QQ> v)
+V d(const s& x, const pair<monomial, QQ>& v)
 {
   V ret;
   const monomial& m = v.first;
