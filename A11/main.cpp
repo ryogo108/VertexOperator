@@ -366,19 +366,27 @@ vector<int> stoi(const vector<string>& strs)
 
 int main()
 {
-  V v;
+  /*V v;
   v[V::key_type(list<s>(), 0)] = 1;
-  cout << "v = " <<  v << endl;
-/*  string str;
-  while(getline(cin, str)) {
+  cout << "v = " <<  v << endl;*/
+  V v1;
+  v1[V::key_type(list<s>(), 0)] = 1;
+  cout << "v1 = " <<  v1 << endl;
+  string str;
+  /*while(getline(cin, str)) {
     vector<string> strs = split(str);
     vector<int> in = stoi(strs);
     V result = Es(in, v);
     cout << Es_str(in, "v") << "=" << endl
          << result << endl;
   }*/
+  cout << "E(-3, 1, E(1, -1, v1)) = "
+       << E(-3, 1, E(1, -1, v1)) << endl;
+  cout << "E(1, -1, E(-3, 1, v1)) = "
+       << E(1, -1, E(-3, 1, v1)) << endl;
+
   // now 1.36 sec
-  cout << "E(-10, 1, E(-9, 1,  v)) = "
-       << E(-10, 1, E(-9, 1, v)) << endl;
+  /*cout << "E(-10, 1, E(-9, 1,  v)) = "
+       << E(-10, 1, E(-9, 1, v)) << endl;*/
   return 0;
 }
